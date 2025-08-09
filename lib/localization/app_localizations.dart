@@ -80,6 +80,30 @@ class AppLocalizations {
       AppLanguage.nl: 'Geen aankomende boekingen.',
       AppLanguage.en: 'No upcoming bookings.',
     },
+    'status_pending_confirmation': {
+      AppLanguage.nl: 'In afwachting van bevestiging',
+      AppLanguage.en: 'Pending confirmation',
+    },
+    'status_confirmed': {
+      AppLanguage.nl: 'Bevestigd',
+      AppLanguage.en: 'Confirmed',
+    },
+    'status_ongoing': {
+      AppLanguage.nl: 'Lopend',
+      AppLanguage.en: 'Ongoing',
+    },
+    'status_awaiting_payment': {
+      AppLanguage.nl: 'Wacht op betaling',
+      AppLanguage.en: 'Awaiting payment',
+    },
+    'status_concluded': {
+      AppLanguage.nl: 'Afgerond',
+      AppLanguage.en: 'Concluded',
+    },
+    'status_cancelled': {
+      AppLanguage.nl: 'Geannuleerd',
+      AppLanguage.en: 'Cancelled',
+    },
   };
 
   static String t(String key, AppLanguage language) {
@@ -87,7 +111,7 @@ class AppLocalizations {
   }
 
   static String of(BuildContext context, String key) {
-    final language = Provider.of<LanguageProvider>(context, listen: false).language;
+    final language = Provider.of<LanguageProvider>(context, listen: true).language;
     return t(key, language);
   }
 }

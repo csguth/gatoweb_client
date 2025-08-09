@@ -11,17 +11,6 @@ enum ServiceType {
 }
 
 extension ServiceTypeExtension on ServiceType {
-  String get displayName {
-    switch (this) {
-      case ServiceType.hondenUitlaatservice:
-        return 'Hondenuitlaatservice';
-      case ServiceType.eenHuisbezoekPerDag:
-        return 'Eén huisbezoek per dag';
-      case ServiceType.tweeHuisbezoekenPerDag:
-        return 'Twee huisbezoeken per dag';
-    }
-  }
-
   String localizedName(BuildContext context) {
     final language = Provider.of<LanguageProvider>(context, listen: false).language;
     switch (this) {

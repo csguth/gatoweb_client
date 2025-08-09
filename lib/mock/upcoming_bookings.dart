@@ -8,7 +8,7 @@ final List<Booking> upcomingBookingsMock = [
     endDate: DateTime.now().add(const Duration(days: 1)),
     service: ServiceType.hondenUitlaatservice,
     petName: 'Max',
-    status: 'Bevestigd',
+    status: BookingStatus.confirmed,
   ),
   Booking(
     id: '2',
@@ -16,6 +16,6 @@ final List<Booking> upcomingBookingsMock = [
     endDate: DateTime.now().add(const Duration(days: 5)),
     service: ServiceType.eenHuisbezoekPerDag,
     petName: 'Bella',
-    status: 'In afwachting',
+    status: BookingStatus.pendingConfirmation,
   ),
 ];

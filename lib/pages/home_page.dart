@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/language_provider.dart';
 import '../models/booking.dart';
-import 'new_booking_page.dart';
 import '../config/price_config.dart' show priceConfig;
 import '../mock/upcoming_bookings.dart';
 import '../localization/app_localizations.dart';
 import '../widgets/language_dropdown.dart';
 import '../widgets/upcoming_bookings_list.dart';
+import 'new_booking_page.dart';
 
 final List<DateTime> blockedDates = [
   DateTime(2025, 8, 15),
@@ -72,9 +70,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 8),
             Expanded(
-              child: upcomingBookings.isEmpty
-                  ? Text(AppLocalizations.of(context, 'no_upcoming_bookings'))
-                  : UpcomingBookingsList(bookings: upcomingBookings),
+              child: UpcomingBookingsList(bookings: upcomingBookings),
             ),
           ],
         ),
