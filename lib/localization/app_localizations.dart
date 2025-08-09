@@ -104,6 +104,18 @@ class AppLocalizations {
       AppLanguage.nl: 'Geannuleerd',
       AppLanguage.en: 'Cancelled',
     },
+    'confirm_details': {
+      AppLanguage.nl: 'Controleer uw boeking',
+      AppLanguage.en: 'Review your booking',
+    },
+    'service': {
+      AppLanguage.nl: 'Service',
+      AppLanguage.en: 'Service',
+    },
+    'cancel': {
+      AppLanguage.nl: 'Annuleren',
+      AppLanguage.en: 'Cancel',
+    },
   };
 
   static String t(String key, AppLanguage language) {

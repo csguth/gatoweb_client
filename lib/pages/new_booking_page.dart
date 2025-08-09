@@ -7,6 +7,7 @@ import '../widgets/service_selection.dart';
 import '../widgets/pet_name_input.dart';
 import '../widgets/date_range_picker_tile.dart';
 import '../widgets/confirm_booking_button.dart';
+import '../widgets/booking_confirmation_drawer.dart';
 
 class NewBookingPage extends StatefulWidget {
   final PriceConfig priceConfig;
@@ -18,6 +19,7 @@ class NewBookingPage extends StatefulWidget {
 }
 
 class _NewBookingPageState extends State<NewBookingPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ServiceType? selectedService;
   DateTime? startDate;
   DateTime? endDate;
@@ -51,20 +53,13 @@ class _NewBookingPageState extends State<NewBookingPage> {
       );
       return;
     }
-    final booking = Booking(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      startDate: startDate!,
-      endDate: endDate!,
-      service: selectedService!,
-      petName: petNameController.text,
-      status: BookingStatus.pendingConfirmation,
-    );
-    Navigator.pop(context, booking);
+    _scaffoldKey.currentState?.openEndDrawer();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(title: Text(AppLocalizations.of(context, 'title'))),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -89,6 +84,25 @@ class _NewBookingPageState extends State<NewBookingPage> {
             ConfirmBookingButton(onPressed: _submitBooking),
           ],
         ),
+      ),
+      endDrawer: BookingConfirmationDrawer(
+        selectedService: selectedService,
+        petName: petNameController.text,
+        startDate: startDate,
+        endDate: endDate,
+        onConfirm: () {
+          final booking = Booking(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            startDate: startDate!,
+            endDate: endDate!,
+            service: selectedService!,
+            petName: petNameController.text,
+            status: BookingStatus.pendingConfirmation,
+          );
+          Navigator.pop(context); // Close the drawer
+          Navigator.pop(context, booking); // Return booking to previous page
+        },
+        onCancel: () => Navigator.pop(context), // Close drawer without confirming
       ),
     );
   }
