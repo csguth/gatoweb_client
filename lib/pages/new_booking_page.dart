@@ -60,7 +60,9 @@ class _NewBookingPageState extends State<NewBookingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(title: Text(AppLocalizations.of(context, 'title'))),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context, 'title')),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
