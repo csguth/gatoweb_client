@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../models/booking.dart';
 import '../config/price_config.dart' show priceConfig;
 import '../mock/upcoming_bookings.dart';
@@ -43,6 +45,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+    final userName = auth.user?.displayName ?? auth.user?.email ?? '';
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -55,6 +59,23 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                Text(
+                  '${AppLocalizations.of(context, 'greeting')}, $userName!',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: () async {
+                    await auth.signOut();
+                  },
+                  icon: const Icon(Icons.logout),
+                  label: Text(AppLocalizations.of(context, 'logout')),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _startNewBooking,
               icon: const Icon(Icons.add),
@@ -70,7 +91,9 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 8),
             Expanded(
-              child: UpcomingBookingsList(bookings: upcomingBookings),
+              child: upcomingBookings.isEmpty
+                  ? Text(AppLocalizations.of(context, 'no_upcoming_bookings'))
+                  : UpcomingBookingsList(bookings: upcomingBookings),
             ),
           ],
         ),

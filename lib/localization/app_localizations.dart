@@ -116,6 +116,38 @@ class AppLocalizations {
       AppLanguage.nl: 'Annuleren',
       AppLanguage.en: 'Cancel',
     },
+    'login': {
+      AppLanguage.nl: 'Inloggen',
+      AppLanguage.en: 'Login',
+    },
+    'register': {
+      AppLanguage.nl: 'Registreren',
+      AppLanguage.en: 'Register',
+    },
+    'email': {
+      AppLanguage.nl: 'E-mail',
+      AppLanguage.en: 'Email',
+    },
+    'password': {
+      AppLanguage.nl: 'Wachtwoord',
+      AppLanguage.en: 'Password',
+    },
+    'no_account_register': {
+      AppLanguage.nl: 'Nog geen account? Registreer',
+      AppLanguage.en: 'No account? Register',
+    },
+    'already_account_login': {
+      AppLanguage.nl: 'Heb je al een account? Inloggen',
+      AppLanguage.en: 'Already have an account? Login',
+    },
+    'greeting': {
+      AppLanguage.nl: 'Welkom',
+      AppLanguage.en: 'Welcome',
+    },
+    'logout': {
+      AppLanguage.nl: 'Uitloggen',
+      AppLanguage.en: 'Logout',
+    },
   };
 
   static String t(String key, AppLanguage language) {

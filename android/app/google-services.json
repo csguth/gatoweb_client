@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "844744139919",
+    "project_id": "gatoweb",
+    "storage_bucket": "gatoweb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:844744139919:android:5551f898de2fbee215fcfa",
+        "android_client_info": {
+          "package_name": "com.example.gatoweb_client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6DBQDYu2CsSBDwtvRC5rtcNzBoU3bwqQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

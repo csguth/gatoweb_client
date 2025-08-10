@@ -1,10 +1,49 @@
 {
-  "hosting": {
-    "public": "build/web",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ]
-  }
+    "hosting": {
+        "public": "build/web",
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**"
+        ]
+    },
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "gatoweb",
+                    "appId": "1:844744139919:android:5551f898de2fbee215fcfa",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "ios": {
+                "default": {
+                    "projectId": "gatoweb",
+                    "appId": "1:844744139919:ios:5cea4a3d350b632815fcfa",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "ios/Runner/GoogleService-Info.plist"
+                }
+            },
+            "macos": {
+                "default": {
+                    "projectId": "gatoweb",
+                    "appId": "1:844744139919:ios:5cea4a3d350b632815fcfa",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "macos/Runner/GoogleService-Info.plist"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "gatoweb",
+                    "configurations": {
+                        "android": "1:844744139919:android:5551f898de2fbee215fcfa",
+                        "ios": "1:844744139919:ios:5cea4a3d350b632815fcfa",
+                        "macos": "1:844744139919:ios:5cea4a3d350b632815fcfa",
+                        "web": "1:844744139919:web:7eb274bd3a01d99215fcfa",
+                        "windows": "1:844744139919:web:48e9bf37c5d790f615fcfa"
+                    }
+                }
+            }
+        }
+    }
 }
