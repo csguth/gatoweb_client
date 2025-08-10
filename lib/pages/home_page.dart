@@ -10,6 +10,7 @@ import '../widgets/language_dropdown.dart';
 import '../widgets/upcoming_bookings_list.dart';
 import 'new_booking_page.dart';
 import 'blocked_dates_page.dart';
+import 'profile_page.dart';
 
 Future<List<DateTime>> loadBlockedDates() async {
   final doc = await FirebaseFirestore.instance.collection('settings').doc('blockedDates').get();
@@ -130,6 +131,24 @@ class _HomePageState extends State<HomePage> {
         actions: const [
           LanguageDropdown(),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            const DrawerHeader(child: Text('Menu')),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: Text(AppLocalizations.of(context, 'profile')),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );
+              },
+            ),
+            // ...other drawer items...
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

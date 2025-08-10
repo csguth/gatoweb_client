@@ -168,6 +168,42 @@ class AppLocalizations {
       AppLanguage.nl: 'Naam',
       AppLanguage.en: 'Display name',
     },
+    'profile': {
+      AppLanguage.nl: 'Profiel',
+      AppLanguage.en: 'Profile',
+    },
+    'profile_saved': {
+      AppLanguage.nl: 'Profiel opgeslagen',
+      AppLanguage.en: 'Profile saved',
+    },
+    'your_animals': {
+      AppLanguage.nl: 'Jouw dieren',
+      AppLanguage.en: 'Your animals',
+    },
+    'add_animal': {
+      AppLanguage.nl: 'Dier toevoegen',
+      AppLanguage.en: 'Add animal',
+    },
+    'animal_name': {
+      AppLanguage.nl: 'Naam',
+      AppLanguage.en: 'Name',
+    },
+    'select_birth_date': {
+      AppLanguage.nl: 'Selecteer geboortedatum',
+      AppLanguage.en: 'Select birth date',
+    },
+    'photo_url': {
+      AppLanguage.nl: 'Foto URL',
+      AppLanguage.en: 'Photo URL',
+    },
+    'save': {
+      AppLanguage.nl: 'Opslaan',
+      AppLanguage.en: 'Save',
+    },
+    'pick_photo': {
+      AppLanguage.nl: 'Foto kiezen',
+      AppLanguage.en: 'Pick photo'
+    },
   };
 
   static String t(String key, AppLanguage language) {
