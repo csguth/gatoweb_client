@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/service_type.dart';
 import '../providers/auth_provider.dart';
 import '../models/booking.dart';
 import '../config/price_config.dart' show priceConfig;
-import '../mock/upcoming_bookings.dart';
 import '../localization/app_localizations.dart';
 import '../widgets/language_dropdown.dart';
 import '../widgets/upcoming_bookings_list.dart';
@@ -25,6 +25,41 @@ Future<void> saveBlockedDates(List<DateTime> dates) async {
   });
 }
 
+Future<List<Booking>> loadUpcomingBookings(String userId, {bool isAdmin = false}) async {
+  QuerySnapshot<Map<String, dynamic>> snapshot;
+  if (isAdmin) {
+    snapshot = await FirebaseFirestore.instance.collection('bookings').get();
+  } else {
+    snapshot = await FirebaseFirestore.instance
+      .collection('bookings')
+      .where('userId', isEqualTo: userId)
+      .get();
+  }
+  return snapshot.docs.map((doc) {
+    final data = doc.data();
+    return Booking(
+      id: doc.id,
+      startDate: DateTime.fromMillisecondsSinceEpoch(data['startDate']),
+      endDate: DateTime.fromMillisecondsSinceEpoch(data['endDate']),
+      service: ServiceType.values.firstWhere((e) => e.name == data['service']),
+      petName: data['petName'],
+      status: BookingStatus.values.firstWhere((e) => e.name == data['status']),
+      userId: data['userId'] ?? '',
+    );
+  }).toList();
+}
+
+Future<void> saveBooking(Booking booking) async {
+  await FirebaseFirestore.instance.collection('bookings').doc(booking.id).set({
+    'startDate': booking.startDate.millisecondsSinceEpoch,
+    'endDate': booking.endDate.millisecondsSinceEpoch,
+    'service': booking.service.name,
+    'petName': booking.petName,
+    'status': booking.status.name,
+    'userId': booking.userId,
+  });
+}
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
   final String title;
@@ -34,7 +69,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Booking> upcomingBookings = List.from(upcomingBookingsMock);
+  List<Booking> upcomingBookings = [];
   List<DateTime> blockedDates = [];
 
   void _startNewBooking() async {
@@ -52,6 +87,7 @@ class _HomePageState extends State<HomePage> {
         upcomingBookings.add(newBooking);
         upcomingBookings.sort((a, b) => a.startDate.compareTo(b.startDate));
       });
+      await saveBooking(newBooking);
     }
   }
 
@@ -59,6 +95,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadBlockedDates();
+    _loadUpcomingBookings();
   }
 
   Future<void> _loadBlockedDates() async {
@@ -75,10 +112,18 @@ class _HomePageState extends State<HomePage> {
     await saveBlockedDates(dates);
   }
 
+  Future<void> _loadUpcomingBookings() async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final isAdmin = auth.user?.uid == 'KFj4YEr9J9WFUGW2hFHSp8Zta063';
+    final loaded = await loadUpcomingBookings(auth.user?.uid ?? '', isAdmin: isAdmin);
+    setState(() {
+      upcomingBookings = loaded;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
-    final userName = auth.user?.displayName ?? auth.user?.email ?? '';
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -93,9 +138,17 @@ class _HomePageState extends State<HomePage> {
           children: [
             Row(
               children: [
-                Text(
-                  '${AppLocalizations.of(context, 'greeting')}, $userName!',
-                  style: Theme.of(context).textTheme.titleMedium,
+                FutureBuilder<Map<String, dynamic>?>(
+                  future: auth.user != null
+                      ? auth.fetchUserProfile(auth.user!.uid)
+                      : Future.value(null),
+                  builder: (context, snapshot) {
+                    final userName = snapshot.data?['displayName'] ?? auth.user?.displayName ?? '';
+                    return Text(
+                      '${AppLocalizations.of(context, 'greeting')}, $userName!',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    );
+                  },
                 ),
                 const Spacer(),
                 TextButton.icon(

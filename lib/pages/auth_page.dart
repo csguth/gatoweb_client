@@ -14,6 +14,7 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final displayNameController = TextEditingController();
   bool isLogin = true;
   String error = '';
 
@@ -23,7 +24,11 @@ class _AuthPageState extends State<AuthPage> {
       if (isLogin) {
         await auth.signIn(emailController.text, passwordController.text);
       } else {
-        await auth.register(emailController.text, passwordController.text);
+        await auth.register(
+          emailController.text,
+          passwordController.text,
+          displayNameController.text,
+        );
       }
     } catch (e) {
       setState(() {
@@ -38,7 +43,7 @@ class _AuthPageState extends State<AuthPage> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context, isLogin ? 'login' : 'register')),
         actions: const [
-          LanguageDropdown(), // <-- Add the language selector here
+          LanguageDropdown(),
         ],
       ),
       body: Padding(
@@ -49,6 +54,15 @@ class _AuthPageState extends State<AuthPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (!isLogin)
+                  TextField(
+                    controller: displayNameController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context, 'display_name'),
+                    ),
+                    autofillHints: const [AutofillHints.name],
+                  ),
+                if (!isLogin) const SizedBox(height: 12),
                 TextField(
                   controller: emailController,
                   decoration: InputDecoration(

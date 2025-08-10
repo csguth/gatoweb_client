@@ -40,6 +40,7 @@ class Booking {
   final ServiceType service;
   final String petName;
   final BookingStatus status;
+  final String userId;
 
   Booking({
     required this.id,
@@ -48,5 +49,6 @@ class Booking {
     required this.service,
     required this.petName,
     required this.status,
+    required this.userId,
   });
 }

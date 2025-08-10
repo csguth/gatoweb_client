@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/service_type.dart';
 import '../models/price_config.dart';
 import '../models/booking.dart';
@@ -8,6 +9,7 @@ import '../widgets/pet_name_input.dart';
 import '../widgets/date_range_picker_tile.dart';
 import '../widgets/confirm_booking_button.dart';
 import '../widgets/booking_confirmation_drawer.dart';
+import '../providers/auth_provider.dart';
 
 class NewBookingPage extends StatefulWidget {
   final PriceConfig priceConfig;
@@ -116,6 +118,7 @@ class _NewBookingPageState extends State<NewBookingPage> {
         startDate: startDate,
         endDate: endDate,
         onConfirm: () {
+          final auth = Provider.of<AuthProvider>(context, listen: false);
           final booking = Booking(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
             startDate: startDate!,
@@ -123,6 +126,7 @@ class _NewBookingPageState extends State<NewBookingPage> {
             service: selectedService!,
             petName: petNameController.text,
             status: BookingStatus.pendingConfirmation,
+            userId: auth.user?.uid ?? '',
           );
           Navigator.pop(context); // Close the drawer
           Navigator.pop(context, booking); // Return booking to previous page

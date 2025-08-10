@@ -160,6 +160,14 @@ class AppLocalizations {
       AppLanguage.nl: 'Geen geblokkeerde data.',
       AppLanguage.en: 'No blocked dates.',
     },
+    'user': {
+      AppLanguage.nl: 'Gebruiker',
+      AppLanguage.en: 'User',
+    },
+    'display_name': {
+      AppLanguage.nl: 'Naam',
+      AppLanguage.en: 'Display name',
+    },
   };
 
   static String t(String key, AppLanguage language) {
