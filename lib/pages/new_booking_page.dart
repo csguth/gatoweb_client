@@ -37,6 +37,29 @@ class _NewBookingPageState extends State<NewBookingPage> {
       builder: (context, child) {
         return child!;
       },
+      selectableDayPredicate: (date, start, end) {
+        if (widget.blockedDates.any((blocked) =>
+            blocked.year == date.year &&
+            blocked.month == date.month &&
+            blocked.day == date.day)) {
+          return false;
+        }
+
+        if (start != null && end == null) {
+          for (var d = start;
+              !d.isAfter(date);
+              d = d.add(const Duration(days: 1))) {
+            if (widget.blockedDates.any((blocked) =>
+                blocked.year == d.year &&
+                blocked.month == d.month &&
+                blocked.day == d.day)) {
+              return false;
+            }
+          }
+        }
+
+        return true;
+      },
     );
     if (picked != null) {
       setState(() {

@@ -148,6 +148,18 @@ class AppLocalizations {
       AppLanguage.nl: 'Uitloggen',
       AppLanguage.en: 'Logout',
     },
+    'blocked_dates': {
+      AppLanguage.nl: 'Geblokkeerde data',
+      AppLanguage.en: 'Blocked dates',
+    },
+    'add_blocked_date': {
+      AppLanguage.nl: 'Datum blokkeren',
+      AppLanguage.en: 'Add blocked date',
+    },
+    'no_blocked_dates': {
+      AppLanguage.nl: 'Geen geblokkeerde data.',
+      AppLanguage.en: 'No blocked dates.',
+    },
   };
 
   static String t(String key, AppLanguage language) {

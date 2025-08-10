@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/auth_provider.dart';
 import '../models/booking.dart';
 import '../config/price_config.dart' show priceConfig;
@@ -8,11 +9,21 @@ import '../localization/app_localizations.dart';
 import '../widgets/language_dropdown.dart';
 import '../widgets/upcoming_bookings_list.dart';
 import 'new_booking_page.dart';
+import 'blocked_dates_page.dart';
 
-final List<DateTime> blockedDates = [
-  DateTime(2025, 8, 15),
-  DateTime(2025, 8, 20),
-];
+Future<List<DateTime>> loadBlockedDates() async {
+  final doc = await FirebaseFirestore.instance.collection('settings').doc('blockedDates').get();
+  final dates = (doc.data()?['dates'] as List<dynamic>? ?? [])
+      .map((ts) => DateTime.fromMillisecondsSinceEpoch(ts))
+      .toList();
+  return dates;
+}
+
+Future<void> saveBlockedDates(List<DateTime> dates) async {
+  await FirebaseFirestore.instance.collection('settings').doc('blockedDates').set({
+    'dates': dates.map((d) => d.millisecondsSinceEpoch).toList(),
+  });
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -24,6 +35,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Booking> upcomingBookings = List.from(upcomingBookingsMock);
+  List<DateTime> blockedDates = [];
 
   void _startNewBooking() async {
     final newBooking = await Navigator.push(
@@ -41,6 +53,26 @@ class _HomePageState extends State<HomePage> {
         upcomingBookings.sort((a, b) => a.startDate.compareTo(b.startDate));
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBlockedDates();
+  }
+
+  Future<void> _loadBlockedDates() async {
+    final loaded = await loadBlockedDates();
+    setState(() {
+      blockedDates = loaded;
+    });
+  }
+
+  void _updateBlockedDates(List<DateTime> dates) async {
+    setState(() {
+      blockedDates = dates;
+    });
+    await saveBlockedDates(dates);
   }
 
   @override
@@ -66,6 +98,24 @@ class _HomePageState extends State<HomePage> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const Spacer(),
+                TextButton.icon(
+                  icon: const Icon(Icons.event_busy),
+                  label: Text(AppLocalizations.of(context, 'blocked_dates')),
+                  onPressed: () async {
+                    final result = await Navigator.push<List<DateTime>>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BlockedDatesPage(
+                          blockedDates: blockedDates,
+                          onChanged: _updateBlockedDates,
+                        ),
+                      ),
+                    );
+                    if (result != null) {
+                      _updateBlockedDates(result);
+                    }
+                  },
+                ),
                 TextButton.icon(
                   onPressed: () async {
                     await auth.signOut();
