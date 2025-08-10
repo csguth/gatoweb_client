@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 import '../localization/app_localizations.dart';
 
 class BlockedDatesPage extends StatefulWidget {
@@ -16,43 +17,24 @@ class BlockedDatesPage extends StatefulWidget {
 }
 
 class _BlockedDatesPageState extends State<BlockedDatesPage> {
-  late List<DateTime> dates;
+  late Set<DateTime> blocked;
 
   @override
   void initState() {
     super.initState();
-    dates = List.from(widget.blockedDates);
+    blocked = widget.blockedDates.map((d) => DateTime(d.year, d.month, d.day)).toSet();
   }
 
-  void _addDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now().subtract(const Duration(days: 365)),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
-      selectableDayPredicate: (date) {
-        // Prevent picking dates that are already blocked
-        return !dates.any((d) =>
-          d.year == date.year &&
-          d.month == date.month &&
-          d.day == date.day
-        );
-      },
-    );
-    if (picked != null) {
-      setState(() {
-        dates.add(picked);
-        dates.sort();
-      });
-      widget.onChanged(List.from(dates));
-    }
-  }
-
-  void _removeDate(DateTime date) {
+  void _toggleDate(DateTime day) {
+    final normalized = DateTime(day.year, day.month, day.day);
     setState(() {
-      dates.removeWhere((d) => d.year == date.year && d.month == date.month && d.day == date.day);
+      if (blocked.contains(normalized)) {
+        blocked.remove(normalized);
+      } else {
+        blocked.add(normalized);
+      }
     });
-    widget.onChanged(List.from(dates));
+    widget.onChanged(blocked.toList());
   }
 
   @override
@@ -64,39 +46,45 @@ class _BlockedDatesPageState extends State<BlockedDatesPage> {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () {
-              Navigator.pop(context, dates); // <-- Return dates on pop
+              Navigator.pop(context, blocked.toList());
             },
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            ElevatedButton.icon(
-              onPressed: _addDate,
-              icon: const Icon(Icons.add),
-              label: Text(AppLocalizations.of(context, 'add_blocked_date')),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: dates.isEmpty
-                  ? Text(AppLocalizations.of(context, 'no_blocked_dates'))
-                  : ListView.builder(
-                      itemCount: dates.length,
-                      itemBuilder: (context, index) {
-                        final date = dates[index];
-                        return ListTile(
-                          title: Text('${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => _removeDate(date),
-                          ),
-                        );
-                      },
+        child: TableCalendar(
+          firstDay: DateTime.now().subtract(const Duration(days: 365)),
+          lastDay: DateTime.now().add(const Duration(days: 365)),
+          focusedDay: DateTime.now(),
+          selectedDayPredicate: (day) => blocked.contains(DateTime(day.year, day.month, day.day)),
+          calendarFormat: CalendarFormat.month,
+          onDaySelected: (selectedDay, focusedDay) {
+            _toggleDate(selectedDay);
+          },
+          calendarBuilders: CalendarBuilders(
+            defaultBuilder: (context, day, focusedDay) {
+              final normalized = DateTime(day.year, day.month, day.day);
+              final isBlocked = blocked.contains(normalized);
+              return GestureDetector(
+                onTap: () => _toggleDate(day),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isBlocked ? Colors.redAccent.withAlpha(127) : null,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${day.day}',
+                    style: TextStyle(
+                      color: isBlocked ? Colors.white : null,
+                      fontWeight: isBlocked ? FontWeight.bold : FontWeight.normal,
                     ),
-            ),
-          ],
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
