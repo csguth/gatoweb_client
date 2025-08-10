@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/service_type.dart';
 import '../models/price_config.dart';
 import '../models/booking.dart';
 import '../localization/app_localizations.dart';
 import '../widgets/service_selection.dart';
-import '../widgets/pet_name_input.dart';
 import '../widgets/date_range_picker_tile.dart';
 import '../widgets/confirm_booking_button.dart';
 import '../widgets/booking_confirmation_drawer.dart';
@@ -26,6 +26,24 @@ class _NewBookingPageState extends State<NewBookingPage> {
   DateTime? startDate;
   DateTime? endDate;
   final TextEditingController petNameController = TextEditingController();
+  List<Map<String, dynamic>> userPets = [];
+  List<String> selectedPetUuids = []; // <-- Store selected pet UUIDs
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserPets();
+  }
+
+  Future<void> _loadUserPets() async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final userId = auth.user?.uid;
+    if (userId == null) return;
+    final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    setState(() {
+      userPets = List<Map<String, dynamic>>.from(doc.data()?['animals'] ?? []);
+    });
+  }
 
   Future<void> _pickDateRange() async {
     final now = DateTime.now();
@@ -72,7 +90,7 @@ class _NewBookingPageState extends State<NewBookingPage> {
   }
 
   void _submitBooking() {
-    if (selectedService == null || startDate == null || endDate == null || petNameController.text.isEmpty) {
+    if (selectedService == null || startDate == null || endDate == null || selectedPetUuids.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context, 'fill_all_fields'))),
       );
@@ -100,7 +118,35 @@ class _NewBookingPageState extends State<NewBookingPage> {
               startDate: startDate,
             ),
             const SizedBox(height: 16),
-            PetNameInput(controller: petNameController),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(AppLocalizations.of(context, 'select_pets'), style: Theme.of(context).textTheme.titleMedium),
+                ...userPets.map((pet) {
+                  final uuid = pet['uuid'] as String;
+                  final isSelected = selectedPetUuids.contains(uuid);
+                  return ListTile(
+                    leading: pet['photoUrl'] != null
+                        ? CircleAvatar(backgroundImage: NetworkImage(pet['photoUrl']))
+                        : const CircleAvatar(child: Icon(Icons.pets)),
+                    title: Text(pet['name'] ?? ''),
+                    subtitle: Text('${pet['type'] ?? ''} • ${pet['birthDate'] ?? ''}'),
+                    trailing: Checkbox(
+                      value: isSelected,
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == true) {
+                            selectedPetUuids.add(uuid);
+                          } else {
+                            selectedPetUuids.remove(uuid);
+                          }
+                        });
+                      },
+                    ),
+                  );
+                }),
+              ],
+            ),
             const SizedBox(height: 16),
             DateRangePickerTile(
               startDate: startDate,
@@ -114,7 +160,7 @@ class _NewBookingPageState extends State<NewBookingPage> {
       ),
       endDrawer: BookingConfirmationDrawer(
         selectedService: selectedService,
-        petName: petNameController.text,
+        pets: userPets.where((pet) => selectedPetUuids.contains(pet['uuid'])).toList(), // Pass selected pets
         startDate: startDate,
         endDate: endDate,
         onConfirm: () {
@@ -124,14 +170,16 @@ class _NewBookingPageState extends State<NewBookingPage> {
             startDate: startDate!,
             endDate: endDate!,
             service: selectedService!,
-            petName: petNameController.text,
+            pets: selectedPetUuids
+              .map((uuid) => PetRef(uuid: uuid))
+              .toList(), // Store as PetRef list
             status: BookingStatus.pendingConfirmation,
             userId: auth.user?.uid ?? '',
           );
           Navigator.pop(context); // Close the drawer
           Navigator.pop(context, booking); // Return booking to previous page
         },
-        onCancel: () => Navigator.pop(context), // Close drawer without confirming
+        onCancel: () => Navigator.pop(context),
       ),
     );
   }

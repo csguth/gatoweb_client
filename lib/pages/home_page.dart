@@ -43,7 +43,9 @@ Future<List<Booking>> loadUpcomingBookings(String userId, {bool isAdmin = false}
       startDate: DateTime.fromMillisecondsSinceEpoch(data['startDate']),
       endDate: DateTime.fromMillisecondsSinceEpoch(data['endDate']),
       service: ServiceType.values.firstWhere((e) => e.name == data['service']),
-      petName: data['petName'],
+      pets: (data['pets'] as List<dynamic>? ?? [])
+        .map((p) => PetRef.fromJson(p as Map<String, dynamic>))
+        .toList(), // <-- strongly typed PetRef list
       status: BookingStatus.values.firstWhere((e) => e.name == data['status']),
       userId: data['userId'] ?? '',
     );
@@ -55,7 +57,7 @@ Future<void> saveBooking(Booking booking) async {
     'startDate': booking.startDate.millisecondsSinceEpoch,
     'endDate': booking.endDate.millisecondsSinceEpoch,
     'service': booking.service.name,
-    'petName': booking.petName,
+    'pets': booking.pets.map((p) => p.toJson()).toList(), // <-- strongly typed PetRef list
     'status': booking.status.name,
     'userId': booking.userId,
   });

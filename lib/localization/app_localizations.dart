@@ -204,6 +204,14 @@ class AppLocalizations {
       AppLanguage.nl: 'Foto kiezen',
       AppLanguage.en: 'Pick photo'
     },
+    'select_pets': {
+      AppLanguage.nl: 'Selecteer huisdieren',
+      AppLanguage.en: 'Select pets',
+    },
+    'pets': {
+      AppLanguage.nl: 'Huisdieren',
+      AppLanguage.en: 'Pets',
+    },
   };
 
   static String t(String key, AppLanguage language) {

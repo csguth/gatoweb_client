@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:uuid/uuid.dart';
 import '../localization/app_localizations.dart';
 
 enum AnimalType { cat, dog, rodent, reptile, bird, other }
@@ -121,7 +122,9 @@ class _AnimalDialogState extends State<AnimalDialog> {
               finalPhotoUrl = await _uploadImage(pickedImage!);
             }
             if (!mounted) return;
+            final uuidValue = widget.initial?['uuid'] ?? const Uuid().v4();
             Navigator.pop(context, {
+              'uuid': uuidValue,
               'name': nameController.text,
               'type': type.name,
               'birthDate': birthDate?.toIso8601String(),

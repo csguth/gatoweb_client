@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../providers/auth_provider.dart';
 import '../localization/app_localizations.dart';
 import '../widgets/animal_dialog.dart';
@@ -232,7 +233,9 @@ class _AnimalDialogState extends State<AnimalDialog> {
               finalPhotoUrl = await _uploadImage(pickedImage!);
             }
             if (!mounted) return;
+            final uuidValue = widget.initial?['uuid'] ?? const Uuid().v4(); // <-- Generate uuid if missing
             Navigator.pop(context, {
+              'uuid': uuidValue,
               'name': nameController.text,
               'type': type.name,
               'birthDate': birthDate?.toIso8601String(),
