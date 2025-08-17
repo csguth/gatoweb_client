@@ -8,12 +8,17 @@ import '../config/price_config.dart' show priceConfig;
 import '../localization/app_localizations.dart';
 import '../widgets/language_dropdown.dart';
 import '../widgets/upcoming_bookings_list.dart';
+import '../widgets/upcoming_bookings_calendar.dart';
 import 'new_booking_page.dart';
 import 'blocked_dates_page.dart';
 import 'profile_page.dart';
+import '../services/booking_service.dart';
 
 Future<List<DateTime>> loadBlockedDates() async {
-  final doc = await FirebaseFirestore.instance.collection('settings').doc('blockedDates').get();
+  final doc = await FirebaseFirestore.instance
+      .collection('settings')
+      .doc('blockedDates')
+      .get();
   final dates = (doc.data()?['dates'] as List<dynamic>? ?? [])
       .map((ts) => DateTime.fromMillisecondsSinceEpoch(ts))
       .toList();
@@ -21,20 +26,24 @@ Future<List<DateTime>> loadBlockedDates() async {
 }
 
 Future<void> saveBlockedDates(List<DateTime> dates) async {
-  await FirebaseFirestore.instance.collection('settings').doc('blockedDates').set({
+  await FirebaseFirestore.instance
+      .collection('settings')
+      .doc('blockedDates')
+      .set({
     'dates': dates.map((d) => d.millisecondsSinceEpoch).toList(),
   });
 }
 
-Future<List<Booking>> loadUpcomingBookings(String userId, {bool isAdmin = false}) async {
+Future<List<Booking>> loadUpcomingBookings(String userId,
+    {bool isAdmin = false}) async {
   QuerySnapshot<Map<String, dynamic>> snapshot;
   if (isAdmin) {
     snapshot = await FirebaseFirestore.instance.collection('bookings').get();
   } else {
     snapshot = await FirebaseFirestore.instance
-      .collection('bookings')
-      .where('userId', isEqualTo: userId)
-      .get();
+        .collection('bookings')
+        .where('userId', isEqualTo: userId)
+        .get();
   }
   return snapshot.docs.map((doc) {
     final data = doc.data();
@@ -44,23 +53,12 @@ Future<List<Booking>> loadUpcomingBookings(String userId, {bool isAdmin = false}
       endDate: DateTime.fromMillisecondsSinceEpoch(data['endDate']),
       service: ServiceType.values.firstWhere((e) => e.name == data['service']),
       pets: (data['pets'] as List<dynamic>? ?? [])
-        .map((p) => PetRef.fromJson(p as Map<String, dynamic>))
-        .toList(), // <-- strongly typed PetRef list
+          .map((p) => PetRef.fromJson(p as Map<String, dynamic>))
+          .toList(), // <-- strongly typed PetRef list
       status: BookingStatus.values.firstWhere((e) => e.name == data['status']),
       userId: data['userId'] ?? '',
     );
   }).toList();
-}
-
-Future<void> saveBooking(Booking booking) async {
-  await FirebaseFirestore.instance.collection('bookings').doc(booking.id).set({
-    'startDate': booking.startDate.millisecondsSinceEpoch,
-    'endDate': booking.endDate.millisecondsSinceEpoch,
-    'service': booking.service.name,
-    'pets': booking.pets.map((p) => p.toJson()).toList(), // <-- strongly typed PetRef list
-    'status': booking.status.name,
-    'userId': booking.userId,
-  });
 }
 
 class HomePage extends StatefulWidget {
@@ -74,6 +72,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Booking> upcomingBookings = [];
   List<DateTime> blockedDates = [];
+  bool upcomingBookingsAsCalendar = false;
 
   void _startNewBooking() async {
     final newBooking = await Navigator.push(
@@ -90,7 +89,8 @@ class _HomePageState extends State<HomePage> {
         upcomingBookings.add(newBooking);
         upcomingBookings.sort((a, b) => a.startDate.compareTo(b.startDate));
       });
-      await saveBooking(newBooking);
+      await saveBooking(
+          newBooking); // <-- CHANGE: import from booking_service.dart
     }
   }
 
@@ -118,9 +118,11 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadUpcomingBookings() async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final isAdmin = auth.user?.uid == 'KFj4YEr9J9WFUGW2hFHSp8Zta063';
-    final loaded = await loadUpcomingBookings(auth.user?.uid ?? '', isAdmin: isAdmin);
+    final loaded =
+        await loadUpcomingBookings(auth.user?.uid ?? '', isAdmin: isAdmin);
     setState(() {
       upcomingBookings = loaded;
+      upcomingBookingsAsCalendar = isAdmin;
     });
   }
 
@@ -164,7 +166,9 @@ class _HomePageState extends State<HomePage> {
                       ? auth.fetchUserProfile(auth.user!.uid)
                       : Future.value(null),
                   builder: (context, snapshot) {
-                    final userName = snapshot.data?['displayName'] ?? auth.user?.displayName ?? '';
+                    final userName = snapshot.data?['displayName'] ??
+                        auth.user?.displayName ??
+                        '';
                     return Text(
                       '${AppLocalizations.of(context, 'greeting')}, $userName!',
                       style: Theme.of(context).textTheme.titleMedium,
@@ -213,11 +217,25 @@ class _HomePageState extends State<HomePage> {
               AppLocalizations.of(context, 'upcoming_bookings'),
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 8),
             Expanded(
-              child: upcomingBookings.isEmpty
-                  ? Text(AppLocalizations.of(context, 'no_upcoming_bookings'))
-                  : UpcomingBookingsList(bookings: upcomingBookings),
+              child: Column(
+                children: [
+                  upcomingBookingsAsCalendar
+                      ? UpcomingBookingsCalendar(
+                          bookings: upcomingBookings,
+                          onStatusChanged: _loadUpcomingBookings,
+                        )
+                      : Expanded(
+                          child: upcomingBookings.isEmpty
+                              ? Text(AppLocalizations.of(
+                                  context, 'no_upcoming_bookings'))
+                              : UpcomingBookingsList(
+                                  bookings: upcomingBookings,
+                                  // Do NOT pass onStatusChanged here
+                                ),
+                        ),
+                ],
+              ),
             ),
           ],
         ),
