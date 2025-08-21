@@ -19,65 +19,14 @@ class DefaultFirebaseOptions {
     if (kIsWeb) {
       return web;
     }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return android;
-      case TargetPlatform.iOS:
-        return ios;
-      case TargetPlatform.macOS:
-        return macos;
-      case TargetPlatform.windows:
-        return windows;
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
-      default:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
-        );
-    }
+    throw UnsupportedError(
+      'DefaultFirebaseOptions are not supported for this platform.',
+    );
   }
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyCfqCSmkcvpsdv5S73y0gOHmjus77AuFWU',
     appId: '1:844744139919:web:7eb274bd3a01d99215fcfa',
-    messagingSenderId: '844744139919',
-    projectId: 'gatoweb',
-    authDomain: 'gatoweb.firebaseapp.com',
-    storageBucket: 'gatoweb.firebasestorage.app',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD6DBQDYu2CsSBDwtvRC5rtcNzBoU3bwqQ',
-    appId: '1:844744139919:android:5551f898de2fbee215fcfa',
-    messagingSenderId: '844744139919',
-    projectId: 'gatoweb',
-    storageBucket: 'gatoweb.firebasestorage.app',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAyHQlrI5zloULSHSxw_4s_cp4T1d2iHJk',
-    appId: '1:844744139919:ios:5cea4a3d350b632815fcfa',
-    messagingSenderId: '844744139919',
-    projectId: 'gatoweb',
-    storageBucket: 'gatoweb.firebasestorage.app',
-    iosBundleId: 'com.example.gatowebClient',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAyHQlrI5zloULSHSxw_4s_cp4T1d2iHJk',
-    appId: '1:844744139919:ios:5cea4a3d350b632815fcfa',
-    messagingSenderId: '844744139919',
-    projectId: 'gatoweb',
-    storageBucket: 'gatoweb.firebasestorage.app',
-    iosBundleId: 'com.example.gatowebClient',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyCfqCSmkcvpsdv5S73y0gOHmjus77AuFWU',
-    appId: '1:844744139919:web:48e9bf37c5d790f615fcfa',
     messagingSenderId: '844744139919',
     projectId: 'gatoweb',
     authDomain: 'gatoweb.firebaseapp.com',
